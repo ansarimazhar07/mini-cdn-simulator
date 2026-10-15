@@ -1,0 +1,12 @@
+timestamp,client_ip,edge_pop,requested_file,cache_status,latency_ms,bytes_served
+2026-10-15 14:00:01,192.168.1.45,Edge-1,nature.jpg,CACHE_MISS,38.45,39073
+2026-10-15 14:00:04,192.168.1.45,Edge-1,nature.jpg,CACHE_HIT,0.68,39073
+2026-10-15 14:00:12,10.0.0.82,Edge-2,nature.jpg,CACHE_MISS,37.12,39073
+2026-10-15 14:00:19,10.0.0.82,Edge-2,sample_video.mp4,CACHE_MISS,48.20,1128375
+2026-10-15 14:00:25,10.0.0.99,Edge-2,sample_video.mp4,CACHE_HIT,1.15,1128375
+2026-10-15 14:01:05,172.16.5.12,Edge-3,welcome.txt,CACHE_MISS,35.90,919
+2026-10-15 14:01:10,172.16.5.12,Edge-3,welcome.txt,CACHE_HIT,0.52,919
+2026-10-15 14:01:22,192.168.2.14,Edge-1,sample_audio.mp3,CACHE_MISS,36.40,39868
+2026-10-15 14:01:28,192.168.2.14,Edge-1,sample_audio.mp3,CACHE_HIT,0.72,39868
+2026-10-15 14:01:45,10.0.1.33,Edge-3,about.json,CACHE_MISS,36.80,945
+2026-10-15 14:01:50,10.0.1.33,Edge-3,about.json,CACHE_HIT,0.61,945

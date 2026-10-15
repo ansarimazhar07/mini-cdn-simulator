@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini CDN Simulator - Distributed Edge Caching</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top App Bar / Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="project-title">Mini CDN Simulator</h1>
+          <p class="project-subtitle">Distributed Content Delivery Through Edge Caching &bull; CS-402 Project</p>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="status-dot"></span>
+        <span>Simulated Edge PoPs: 3 Online</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-layout">
+    
+    <!-- Explanatory Banner -->
+    <section class="info-banner" aria-label="CDN Explanation">
+      <div class="info-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
+      <div class="info-text">
+        <strong>How This CDN Simulator Works:</strong>
+        When a request is submitted, the chosen <strong>Edge Cache</strong> is queried first. If the file is cached (<span class="pill hit-pill">CACHE HIT</span>), it is immediately served from fast memory. If missing (<span class="pill miss-pill">CACHE MISS</span>), the edge fetches the asset from the <strong>Origin Server</strong>, stores a copy in that edge's independent cache, and delivers it to the browser.
+      </div>
+    </section>
+
+    <!-- Top Grid: Request Controller & Latest Result -->
+    <div class="grid-2col">
+      
+      <!-- Content Request Panel -->
+      <section class="card panel-request">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="icon-chip">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </span>
+            <div>
+              <h2>Request Content</h2>
+              <p class="card-sub">Select asset and target edge node</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="cdn-request-form" class="request-form">
+          <div class="form-group">
+            <label for="select-file">Select Origin File:</label>
+            <div class="select-wrapper">
+              <select id="select-file" name="file" required>
+                <optgroup label="Images">
+                  <option value="nature.jpg">nature.jpg &bull; Landscape Asset (Image - 39 KB)</option>
+                  <option value="datacenter.png">datacenter.png &bull; CDN Topology Diagram (Image - 14 KB)</option>
+                </optgroup>
+                <optgroup label="Video & Audio Streaming">
+                  <option value="sample_video.mp4">sample_video.mp4 &bull; Flower Blooming Clip (Video - 1.13 MB)</option>
+                  <option value="sample_audio.mp3">sample_audio.mp3 &bull; Acoustic Sound Effect (Audio - 40 KB)</option>
+                </optgroup>
+                <optgroup label="Structured Data & Documents">
+                  <option value="welcome.txt">welcome.txt &bull; Project Overview (Plain Text - 919 B)</option>
+                  <option value="about.json">about.json &bull; System Metadata (JSON - 945 B)</option>
+                  <option value="metrics.csv">metrics.csv &bull; CDN Telemetry Logs (CSV Table - 890 B)</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="select-edge">Select Edge Server PoP:</label>
+            <div class="select-wrapper">
+              <select id="select-edge" name="edge" required>
+                <option value="edge1">Edge 1 (Node A - Regional Cache)</option>
+                <option value="edge2">Edge 2 (Node B - Regional Cache)</option>
+                <option value="edge3">Edge 3 (Node C - Regional Cache)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" id="btn-request" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Request Content</span>
+            </button>
+            <button type="button" id="btn-reset" class="btn btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+              <span>Clear All Caches</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Route Visualization -->
+        <div class="flow-tracer">
+          <div class="flow-step step-client active">
+            <span class="flow-icon">💻</span>
+            <span class="flow-label">Browser</span>
+          </div>
+          <div class="flow-arrow" id="flow-arrow-1">&rarr;</div>
+          <div class="flow-step step-edge" id="flow-step-edge">
+            <span class="flow-icon">⚡</span>
+            <span class="flow-label" id="flow-edge-label">Edge Cache</span>
+          </div>
+          <div class="flow-arrow" id="flow-arrow-2">&rarr;</div>
+          <div class="flow-step step-origin" id="flow-step-origin">
+            <span class="flow-icon">🏛️</span>
+            <span class="flow-label">Origin Disk</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Request Result Panel -->
+      <section class="card panel-result" id="panel-result">
+        <div class="card-header">
+          <div class="card-title-group">
+            <span class="icon-chip">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </span>
+            <div>
+              <h2>Execution Result</h2>
+              <p class="card-sub">CDN telemetry & cache resolution</p>
+            </div>
+          </div>
+          <span id="result-status-badge" class="badge-status badge-waiting">Ready</span>
+        </div>
+
+        <div class="result-metrics-grid">
+          <div class="metric-box">
+            <span class="metric-label">Cache Status</span>
+            <span class="metric-value" id="res-status">-</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Response Source</span>
+            <span class="metric-value font-mono" id="res-source">-</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Selected Node</span>
+            <span class="metric-value" id="res-edge">-</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Response Time</span>
+            <span class="metric-value font-mono text-emerald" id="res-time">-</span>
+          </div>
+        </div>
+
+        <div class="result-message" id="result-explanation">
+          Select a file and edge node, then click <strong>"Request Content"</strong> to initiate delivery.
+        </div>
+      </section>
+    </div>
+
+    <!-- Actual Content Preview Panel -->
+    <section class="card panel-preview">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="icon-chip">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </span>
+          <div>
+            <h2>Actual Content Delivered</h2>
+            <p class="card-sub" id="preview-subtitle">Actual payload returned from Flask CDN backend</p>
+          </div>
+        </div>
+        <div class="preview-meta" id="preview-meta-tags">
+          <span class="tag-meta" id="tag-file-type">No content yet</span>
+        </div>
+      </div>
+
+      <div class="preview-container" id="preview-container">
+        <div class="empty-preview" id="empty-preview">
+          <div class="empty-illustration">📂</div>
+          <p class="empty-text">No content requested yet. Submit a request above to render the real file delivered through the CDN.</p>
+        </div>
+
+        <!-- Dynamic Content Elements -->
+        <div id="image-preview-wrapper" class="preview-item hidden">
+          <img id="delivered-image" src="" alt="Delivered asset from CDN" class="rendered-image">
+          <div class="image-caption" id="image-caption">Image &bull; Delivered via CDN</div>
+        </div>
+
+        <!-- Video Player -->
+        <div id="video-preview-wrapper" class="preview-item hidden">
+          <div class="video-container">
+            <video id="delivered-video" controls playsinline class="rendered-video"></video>
+            <div class="media-caption" id="video-caption">Video Stream &bull; Delivered via CDN</div>
+          </div>
+        </div>
+
+        <!-- Audio Player -->
+        <div id="audio-preview-wrapper" class="preview-item hidden">
+          <div class="audio-container">
+            <div class="audio-graphic">🎵</div>
+            <div class="audio-info">
+              <span class="audio-title" id="audio-title">sample_audio.mp3</span>
+              <span class="audio-subtitle">High-fidelity audio stream delivered via CDN edge</span>
+            </div>
+            <audio id="delivered-audio" controls class="rendered-audio"></audio>
+          </div>
+        </div>
+
+        <!-- CSV Data Table -->
+        <div id="csv-preview-wrapper" class="preview-item hidden">
+          <div class="csv-container">
+            <div class="terminal-bar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-title">metrics.csv &bull; Rendered CSV Telemetry Stream</span>
+            </div>
+            <div class="table-responsive csv-table-scroll">
+              <table id="delivered-csv-table" class="rendered-csv-table">
+                <thead><tr id="csv-head-row"></tr></thead>
+                <tbody id="csv-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="text-preview-wrapper" class="preview-item hidden">
+          <div class="text-terminal">
+            <div class="terminal-bar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-title">welcome.txt &bull; Raw Stream</span>
+            </div>
+            <pre id="delivered-text" class="rendered-text"></pre>
+          </div>
+        </div>
+
+        <div id="json-preview-wrapper" class="preview-item hidden">
+          <div class="json-terminal">
+            <div class="terminal-bar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-title">about.json &bull; Parsed JSON Payload</span>
+            </div>
+            <pre id="delivered-json" class="rendered-json"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Edge Status Cards (3 Independent Edge Caches) -->
+    <section class="section-edge-cards">
+      <div class="section-title-wrap">
+        <h2>Simulated Edge Caches (Independent In-Memory Stores)</h2>
+        <p>Each edge cache operates autonomously. Caching an asset in Edge 1 does not affect Edge 2 or Edge 3.</p>
+      </div>
+
+      <div class="edge-cards-grid">
+        <!-- Edge 1 -->
+        <div class="card edge-card" id="card-edge1">
+          <div class="edge-card-header">
+            <div class="edge-avatar">E1</div>
+            <div>
+              <h3>Edge 1</h3>
+              <span class="edge-sub">Node A &bull; Regional Cache</span>
+            </div>
+            <span class="edge-pill" id="edge1-count-badge">0 files</span>
+          </div>
+          <div class="edge-card-body">
+            <div class="cache-status-label">Cached Files:</div>
+            <ul class="cached-files-list" id="edge1-files-list">
+              <li class="empty-cache-note">Cache empty</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Edge 2 -->
+        <div class="card edge-card" id="card-edge2">
+          <div class="edge-card-header">
+            <div class="edge-avatar">E2</div>
+            <div>
+              <h3>Edge 2</h3>
+              <span class="edge-sub">Node B &bull; Regional Cache</span>
+            </div>
+            <span class="edge-pill" id="edge2-count-badge">0 files</span>
+          </div>
+          <div class="edge-card-body">
+            <div class="cache-status-label">Cached Files:</div>
+            <ul class="cached-files-list" id="edge2-files-list">
+              <li class="empty-cache-note">Cache empty</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Edge 3 -->
+        <div class="card edge-card" id="card-edge3">
+          <div class="edge-card-header">
+            <div class="edge-avatar">E3</div>
+            <div>
+              <h3>Edge 3</h3>
+              <span class="edge-sub">Node C &bull; Regional Cache</span>
+            </div>
+            <span class="edge-pill" id="edge3-count-badge">0 files</span>
+          </div>
+          <div class="edge-card-body">
+            <div class="cache-status-label">Cached Files:</div>
+            <ul class="cached-files-list" id="edge3-files-list">
+              <li class="empty-cache-note">Cache empty</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="section-stats">
+      <div class="section-title-wrap">
+        <h2>CDN Performance Analytics</h2>
+        <p>Aggregate caching metrics across all simulated edge nodes</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="card stat-card">
+          <span class="stat-icon-wrap bg-soft-slate">📊</span>
+          <div class="stat-info">
+            <span class="stat-label">Total Requests</span>
+            <span class="stat-number" id="stat-total">0</span>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-icon-wrap bg-soft-green">🎯</span>
+          <div class="stat-info">
+            <span class="stat-label">Cache Hits</span>
+            <span class="stat-number text-hit" id="stat-hits">0</span>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-icon-wrap bg-soft-amber">🔄</span>
+          <div class="stat-info">
+            <span class="stat-label">Cache Misses</span>
+            <span class="stat-number text-miss" id="stat-misses">0</span>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-icon-wrap bg-soft-teal">📈</span>
+          <div class="stat-info">
+            <span class="stat-label">Cache-Hit Ratio</span>
+            <span class="stat-number" id="stat-ratio">0.0%</span>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-icon-wrap bg-soft-emerald">⚡</span>
+          <div class="stat-info">
+            <span class="stat-label">Avg. Response Time</span>
+            <span class="stat-number font-mono" id="stat-avg-time">0.00 ms</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Request History Table -->
+    <section class="card panel-history">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="icon-chip">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </span>
+          <div>
+            <h2>Request Telemetry Log</h2>
+            <p class="card-sub">Last 10 CDN transaction events</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Filename</th>
+              <th>Edge Node</th>
+              <th>Cache Resolution</th>
+              <th>Source</th>
+              <th>Response Time</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <tr class="empty-row">
+              <td colspan="6">No requests recorded yet. Initiate a request to log telemetry.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <p><strong>Mini CDN Simulator</strong> &bull; Distributed Systems Course Project (CS-402)</p>
+      <p class="footer-sub">Flask Backend &bull; Python Isolated Memory Caches &bull; High-Resolution Telemetry</p>
+    </div>
+  </footer>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

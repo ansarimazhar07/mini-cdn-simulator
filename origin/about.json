@@ -1,0 +1,26 @@
+{
+  "project_name": "Mini CDN Simulator",
+  "version": "1.0.0",
+  "course": "Distributed Systems",
+  "subject_code": "CS-402",
+  "description": "Educational simulation of Content Delivery Network caching mechanisms, origin fallback, and edge node partitioning.",
+  "architecture": {
+    "origin_storage": "Local file system directory (origin/)",
+    "edge_nodes": [
+      { "id": "edge1", "name": "Edge Node 1", "region": "Simulated Region A" },
+      { "id": "edge2", "name": "Edge Node 2", "region": "Simulated Region B" },
+      { "id": "edge3", "name": "Edge Node 3", "region": "Simulated Region C" }
+    ],
+    "cache_type": "In-memory isolated dictionaries",
+    "eviction_policy": "Explicit purge / reset"
+  },
+  "metrics_tracked": [
+    "Response Time (ms)",
+    "Cache Hit Count",
+    "Cache Miss Count",
+    "Cache Hit Ratio (%)",
+    "Per-edge cache inventory"
+  ],
+  "author": "Distributed Systems Student",
+  "created_year": 2026
+}

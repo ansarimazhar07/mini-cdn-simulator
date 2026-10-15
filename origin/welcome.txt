@@ -1,0 +1,20 @@
+Welcome to the Mini CDN Simulator!
+====================================
+
+Content Delivery Networks (CDNs) are distributed networks of proxy servers 
+deployed across multiple geographic points of presence (PoPs). 
+
+How this simulation works:
+1. When a client requests a file from an Edge cache (Edge 1, Edge 2, or Edge 3),
+   the edge first checks its local in-memory storage.
+2. If the file is present:
+   -> CACHE HIT: Content is returned immediately from the Edge memory.
+   -> Latency is extremely low.
+3. If the file is not present:
+   -> CACHE MISS: The Edge fetches the file from the Origin server.
+   -> The Edge caches a local copy for future requests.
+   -> The content is delivered to the client.
+4. Subsequent requests to that same Edge will now produce a CACHE HIT.
+
+This architecture reduces origin server load, minimizes bandwidth consumption, 
+and significantly reduces round-trip latency for end users.
